@@ -1,4 +1,4 @@
-# `rice`
+# rice
 
 A script that auto-installs a personally customized desktop environment. The script only works for gentoo linux at the moment.
 
