@@ -26,13 +26,13 @@ The script is simple and will allow installation in steps. My desktop environmen
 
 The script will download software from the official repository of the distribution/OS and some other software straight from source. It will also download, install, and configure from some of my other personal repos. Those repos being:
 
-[dotfiles](dotfiles)   -- My personal system configuration files for linux
-[scripts](scripts)    -- My personal scripts that I use for everyday tasks
+- [dotfiles](dotfiles) -- My personal system configuration files for linux
+- [scripts](scripts) -- My personal scripts that I use for everyday tasks
 
-[st](st)         -- My personal build of st (simple terminal for X)
-[dwm](dwm)        -- My personal build of dwm (dynamic window manager for X)
-[dwmblocks](dwmblocks)  -- My personal build of dwmblocks, a status bar for dwm
-[dmenu](dmenu)      -- My personal build of dmenu (dynamic menu for X)
+- [st](st) -- My personal build of st (simple terminal for X)
+- [dwm](dwm) -- My personal build of dwm (dynamic window manager for X)
+- [dwmblocks](dwmblocks) -- My personal build of dwmblocks, a status bar for dwm
+- [dmenu](dmenu) -- My personal build of dmenu (dynamic menu for X)
 
 ## Contact
 
