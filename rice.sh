@@ -27,8 +27,8 @@ export header="${cyan}RICE ${blue}=>${clear} "
 export warning="${light_red}WARNING ${red}=>${clear} "
 export error="${light_red}ERROR ${red}=>${clear} "
 export prompt=" ${gray}> ${clear}"
-export default_yes="${green}[BLANK]${clear} yes  /  ${light_red}[N]${clear} no${prompt}"
-export default_no="${prompt_style}[BLANK]${clear} no  /  ${light_green}[Y]${clear} yes${prompt}"
+export default_yes="${green}[BLANK]${clear} yes  /  ${red}[N]${clear} no${prompt}"
+export default_no="${prompt_style}[BLANK]${clear} no  /  ${green}[Y]${clear} yes${prompt}"
 export any_key="${purple}[ANY KEY]${clear}"
 
 export yes_pattern='y/Y/ye/yE/Ye/YE/yes/yeS/yEs/yES/Yes/YeS/YEs/YES'
@@ -274,9 +274,9 @@ set 2 boot on \
 printf "${header}Formatting root filesystem.\\n"
 mkfs.ext4 -q "$rootfs_partition"
 
-printf "${header}Activate swap partition."
-mkswap "$swap_partition"
-swapon "$swap_partition"
+printf "${header}Activate swap partition.\\n"
+mkswap "$swap_partition" >/dev/null
+swapon "$swap_partition" >/dev/null
 
 printf "${header}Mounting root filesystem.\\n"
 mount "$rootfs_partition" "$mount_point"
@@ -333,8 +333,8 @@ printf "${header}Installing ebuild repo snapshot from web.\\n"
 emerge --sync --quiet > /dev/null 2>&1
 printf "${header}Updating package manager.\\n"
 emerge --oneshot --quiet sys-apps/portage
-printf "${header}Installing git.\\n"
-emerge --quiet dev-vcs/git
+printf "${header}Installing git and stow.\\n"
+emerge --quiet dev-vcs/git app-admin/stow
 printf "${header}Installing dosfstools.\\n" # dosfstools is needed for vfat.
 emerge --quiet dosfstools
 
