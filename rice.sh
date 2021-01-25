@@ -1,36 +1,38 @@
 #!/bin/sh
 
 # TODO args for stages
-STAGE_1='true'
-STAGE_1_9='true'
+export stage_1='true'
+export stage_1_9='true'
 
-REPO_DOTFILES='https://github.com/sarrost/dotfiles'
-REPO_SCRIPTS='https://github.com/sarrost/scripts'
-REPO_KERNEL='https://github.com/sarrost/gentoo-kernel'
+export REPO_DOTFILES='https://github.com/sarrost/dotfiles'
+export REPO_SCRIPTS='https://github.com/sarrost/scripts'
+export REPO_KERNEL='https://github.com/sarrost/gentoo-kernel'
 
 # Colors
-clear='\033[0m'
-black='\033[0;30m'				; dark_gray='\033[1;30m'
-red='\033[0;31m'					; light_red='\033[1;31m'
-green='\033[0;32m'				; light_green='\033[1;32m'
-orange='\033[0;33m'				; yellow='\033[1;33m'
-blue='\033[0;34m'					; light_blue='\033[1;34m'
-purple='\033[0;35m'				; light_purple='\033[1;35m'
-cyan='\033[0;36m'					; light_cyan='\033[1;36m'
-light_gray='\033[0;37m'		; white='\033[1;37m'
+export clear='\033[0m'
+export black='\033[0;30m'					; export dark_gray='\033[1;30m'
+export red='\033[0;31m'						; export light_red='\033[1;31m'
+export green='\033[0;32m'					; export light_green='\033[1;32m'
+export orange='\033[0;33m'				; export yellow='\033[1;33m'
+export blue='\033[0;34m'					; export light_blue='\033[1;34m'
+export purple='\033[0;35m'				; export light_purple='\033[1;35m'
+export cyan='\033[0;36m'					; export light_cyan='\033[1;36m'
+export light_gray='\033[0;37m'		; export white='\033[1;37m'
+
+export emphasis="${light_cyan}"
+export prompt_style="${light_blue}"
 
 # Variables
-header="${cyan}RICE ${blue}=>${clear} "
-warning="${light_red}WARNING ${red}=>${clear} "
-error="${light_red}ERROR ${red}=>${clear} "
-prompt=" ${gray}> ${clear}"
-default_yes="${green}[BLANK]${clear} yes  /  ${light_red}[N]${clear} no${prompt}"
-default_no="${light_blue}[BLANK]${clear} no  /  ${light_green}[Y]${clear} yes${prompt}"
-any_key="${purple}[ANY KEY]${clear}"
-# TODO vars for y/n/blanks
+export header="${cyan}RICE ${blue}=>${clear} "
+export warning="${light_red}WARNING ${red}=>${clear} "
+export error="${light_red}ERROR ${red}=>${clear} "
+export prompt=" ${gray}> ${clear}"
+export default_yes="${green}[BLANK]${clear} yes  /  ${light_red}[N]${clear} no${prompt}"
+export default_no="${prompt_style}[BLANK]${clear} no  /  ${light_green}[Y]${clear} yes${prompt}"
+export any_key="${purple}[ANY KEY]${clear}"
 
-yes_pattern='y/Y/ye/yE/Ye/YE/yes/yeS/yEs/yES/Yes/YeS/YEs/YES'
-no_pattern='n/N/no/nO/No/NO'
+export yes_pattern='y/Y/ye/yE/Ye/YE/yes/yeS/yEs/yES/Yes/YeS/YEs/YES'
+export no_pattern='n/N/no/nO/No/NO'
 shopt -s extglob
 
 # stage 1
@@ -51,22 +53,22 @@ fi
 #-----------------------------------------------------------
 #                         STAGE 1
 #-----------------------------------------------------------
-[ -z "$STAGE_1" ] && exit
+[ -z "$stage_1" ] && exit
 
 #-----------------------------------------------------------
 #	PROMPTS
 #-----------------------------------------------------------
 # Prompt user to select hostname
 while [ -z "$valid_hostname" ]; do
-	printf "${header}Enter a name for this machine. For example, ${light_blue}foobar${clear}.\\n${light_blue}[HOSTNAME] > ${clear}"
+	printf "${header}Enter a name for this machine. For example, ${emphasis}foobar${clear}.\\n${prompt_style}[HOSTNAME] > ${clear}"
 	read chosen_hostname
 	if [ ! -z "$chosen_hostname" ]; then
-		printf "${header}You have chosen '$chosen_hostname', do you wish to proceed?\\n${default_yes}"
+		printf "${header}You have chosen ${emphasis}${chosen_hostname}${clear}, do you wish to proceed?\\n${default_yes}"
 		read confirmation
 		case "$confirmation" in
 			@("$no_pattern")) printf "${header}You have cancelled the selection.\\n" ;;
 			*) valid_hostname='true'
-				HOSTNAME="$chosen_hostname" ;;
+				export HOSTNAME="$chosen_hostname" ;;
 		esac
 	fi
 done
@@ -75,15 +77,15 @@ done
 while [ -z "$valid_device" ]; do
 	printf "${header}Choose a storage device to install the OS to. For example, 'sda' (without the quotes).\\n${warning}The drive will be formatted and all content on it will be lost.\\nListing all storage devices:\\n"
 	lsblk -o NAME,SIZE
-	printf "${light_blue}[DEVICE] > ${clear}"
+	printf "${prompt_style}[DEVICE] > ${clear}"
 	read chosen_device
 	stat "/dev/$chosen_device" > /dev/null 2>&1
 	if [ "$?" = 0 ]; then
-		printf "${header}You have chosen ${light_blue}${chosen_device}${clear}, type ${light_blue}YES${clear} (in full) to proceed.\\n${warning}Changes made to this device cannot be undone.\\n${light_blue}[CONFIRM] > ${clear}"
+		printf "${header}You have chosen ${emphasis}${chosen_device}${clear}, type ${emphasis}YES${clear} (in full) to proceed.\\n${warning}Changes made to this device cannot be undone.\\n${prompt_style}[CONFIRM] > ${clear}"
 		read confirmation
 		case "$confirmation" in
 			yes|YES) valid_device='true'
-				device=/dev/"$chosen_device" ;;
+				export device=/dev/"$chosen_device" ;;
 			*) printf "${header}You have cancelled the selection.\\n" ;;
 		esac
 	else
@@ -91,22 +93,22 @@ while [ -z "$valid_device" ]; do
 	fi
 done
 # Devices.
-RICE_BOOT_PART="${device}2"
-RICE_SWAP_PART="${device}3"
-RICE_ROOTFS_PART="${device}4"
+export boot_partition="${device}2"
+export swap_partition="${device}3"
+export rootfs_partition="${device}4"
 
 # Prompt user to select mount point.
 while [ -z "$valid_mount_point" ]; do
-	printf "${header}Do you wish to change the default mount point for the root filesystem from ${light_blue}/mnt/gentoo${clear} to something else?\\n${default_no}"
+	printf "${header}Do you wish to change the default mount point for the root filesystem from ${emphasis}/mnt/gentoo${clear} to something else?\\n${default_no}"
 	read choice
 	case "$choice" in
-		@("$yes_pattern")) printf "${header}Please enter the full path of the mount point you would like to use. If the directory does not already exist it will be created.\\n${light_blue}[MOUNTPOINT] > ${clear}"
+		@("$yes_pattern")) printf "${header}Please enter the full path of the mount point you would like to use. If the directory does not already exist it will be created.\\n${prompt_style}[MOUNTPOINT] > ${clear}"
 			read chosen_mount_point
 			mkdir -p "$chosen_mount_point"
 			[ "$?" = 0 ] && valid_mount_point='true'
 			;;
 		*) valid_mount_point='true'
-			RICE_MOUNT_POINT=/mnt/gentoo ;;
+			export mount_point=/mnt/gentoo ;;
 	esac
 done
 
@@ -114,17 +116,17 @@ done
 # Prompt user to determine boot type.
 while [ -z "$valid_boot_type" ]; do
 	# TODO color
-	printf "${header}Choose the correct system boot type from the list below. For example ${light_blue}1${clear}.\\n[1] UEFI\\n[2] BIOS\\n[BOOT] > "
+	printf "${header}Choose the correct system boot type from the list below. For example ${emphasis}1${clear}.\\n[1] UEFI\\n[2] BIOS\\n[BOOT] > "
 	read choice
 	case "$choice" in
-		1) boot_type='uefi'; valid_boot_type='true';;
-		2) boot_type='bios'; valid_boot_type='true';;
+		1) export boot_type='uefi'; valid_boot_type='true';;
+		2) export boot_type='bios'; valid_boot_type='true';;
 	esac
 done
 
 # Prompt user to enter manual datetime, and set it.
 while [ -z "$valid_datetime" ]; do
-	printf "${header}Enter current date and time. Format is ${light_blue}MMDDhhmmYYYY${clear}, for example ${light_blue}011523002021${clear} for '23:00, 15 January 2021'\\n${light_blue}[DATETIME] > ${clear}"
+	printf "${header}Enter current date and time. Format is ${emphasis}MMDDhhmmYYYY${clear}, for example ${emphasis}011523002021${clear} for '23:00, 15 January 2021'\\n${prompt_style}[DATETIME] > ${clear}"
 	read chosen_datetime
 	# Manually set system time.
 	date "$chosen_datetime"
@@ -140,12 +142,12 @@ done
 
 # Prompt user to select timezone.
 while [ -z "$valid_timezone" ]; do
-	printf "${header}Please enter your timezone. For example ${light_blue}Africa/Johannesburg${clear}.\\n${light_blue}[TIMEZONE] > ${clear}"
+	printf "${header}Please enter your timezone. For example ${emphasis}Africa/Johannesburg${clear}.\\n${prompt_style}[TIMEZONE] > ${clear}"
 	read chosen_timezone
 	# # TODO update check, cannot use zoneinfo
 	# if [ -f "/usr/share/zoneinfo/$chosen_timezone" ]; then
-		valid_timezone='true'
-		RICE_TIMEZONE="$chosen_timezone"
+		export valid_timezone='true'
+		export timezone="$chosen_timezone"
 	# else
 	# 	printf "${error}Invalid timezone, please see the README for more info if you are confused.\\n"
 	# fi
@@ -154,7 +156,7 @@ done
 # Prompt user to change locale.
 valid_locale='false'
 while [ "$valid_locale" = 'false' ]; do
-	printf "${header}Default locale is ${light_blue}en_US${clear}, do you wish to change locale?\\n${default_no}"
+	printf "${header}Default locale is ${emphasis}en_US${clear}, do you wish to change locale?\\n${default_no}"
 	read choice
 	if [ -z "$choice" ]; then
 		valid_locale='true'
@@ -162,7 +164,7 @@ while [ "$valid_locale" = 'false' ]; do
 		# User must enter custom locale info.
 		custom_locale='true'
 		# Get first line.
-		printf "${header}Please see the README for the required info regarding your desired locale.\\nEnter the first line of your locale code, for example, ${light_blue}en_US ISO-8859-1${clear}\\n${light_blue}[LOCALE LINE 1] > ${clear}"
+		printf "${header}Please see the README for the required info regarding your desired locale.\\nEnter the first line of your locale code, for example, ${emphasis}en_US ISO-8859-1${clear}\\n${prompt_style}[LOCALE LINE 1] > ${clear}"
 		read locale_1
 		if [ ! -z "$locale_1" ]; then
 			cat /usr/share/i18n/SUPPORTED | grep "$locale_1" > /dev/null 2>&1
@@ -173,14 +175,15 @@ while [ "$valid_locale" = 'false' ]; do
 		# Get second line.
 		if [ "$valid_locale" = 'true' ]; then
 			valid_locale='false'
-			printf "${header}Enter the second line (if any) of your locale code, for example, ${light_blue}en_US.UTF-8 UTF-8${clear}\\n${light_blue}[LOCALE LINE 2] > ${clear}"
+			printf "${header}Enter the second line (if any) of your locale code, for example, ${emphasis}en_US.UTF-8 UTF-8${clear}\\n${prompt_style}[LOCALE LINE 2] > ${clear}"
 			read locale_2
 			if [ ! -z "$locale_2" ]; then
 				cat /usr/share/i18n/SUPPORTED | grep "$locale_2" > /dev/null 2>&1
-				[ "$?" = 0 ] && valid_locale='true'
+				[ "$?" = 0 ] && valid_locale='true' && export locale_2
 			else
 				if [ ! -z "$locale_1" ]; then
 					valid_locale='true'
+					export locale_1
 				else
 					printf "${error}Both lines cannot be left blank.\\n"
 				fi
@@ -191,16 +194,16 @@ done
 
 # Prompt user for number of jobs to use to build packages.
 while [ -z "$valid_makeopts" ]; do
-	threads=$(nproc)
-	printf "${header}Detected ${light_blue}${threads}${clear} total [logical] threads on this machine, would you like to use all of them to compile your packages?\\n${default_yes}"
+	export threads=$(nproc)
+	printf "${header}Detected ${emphasis}${threads}${clear} total [logical] threads on this machine, would you like to use all of them to compile your packages?\\n${default_yes}"
 	read confirmation
 	case "$confirmation" in
-		@("$no_pattern")) printf "${header}Enter the amount of threads you would like to use instead of the default of ${light_blue}${threads}${clear}.\\n${light_blue}[THREADS] > ${clear}" 
+		@("$no_pattern")) printf "${header}Enter the amount of threads you would like to use instead of the default of ${emphasis}${threads}${clear}.\\n${prompt_style}[THREADS] > ${clear}" 
 			read custom_threads
 			[ "$custom_threads" -le "$threads" ] && 
-				valid_makeopts='yes' && threads=$((threads + 1));;
+				valid_makeopts='yes' && export threads=$((threads + 1));;
 		*) valid_makeopts='yes' 
-			threads=$((threads + 1));;
+			export threads=$((threads + 1));;
 	esac
 done
 
@@ -210,9 +213,9 @@ while [ -z "$valid_mirrors" ]; do
 	read choice
 	case "$choice" in
 		@("$yes_pattern")) custom_mirrors='true'
-			printf "${header}A menu with a list of mirrors will be presented, hit ${light_blue}[SPACE]${clear} to toggle which mirrors you wish to use. It is recommended that you select more than one mirror in case one or more are offline.\\n${any_key}"
+			printf "${header}A menu with a list of mirrors will be presented, hit ${emphasis}[SPACE]${clear} to toggle which mirrors you wish to use. It is recommended that you select more than one mirror in case one or more are offline.\\n${any_key}"
 			read dummy
-			mirrors=$(mirrorselect -i -o)
+			export mirrors=$(mirrorselect -i -o)
 			[ -z "$mirrors" ] || valid_mirrors='true';;
 		*) valid_mirrors='true';;
 	esac
@@ -220,27 +223,27 @@ done
 
 
 # TODO Prompt user to select kernel dir.
-KERNEL_DIR=msi
+export KERNEL_DIR=msi
 
 # Fetch kernel version.
 # TODO proper link variable
-KERNEL_VER=$(curl --silent https://raw.githubusercontent.com/sarrost/gentoo-kernel/master/configs/msi/latest.txt)
+export KERNEL_VER=$(curl --silent https://raw.githubusercontent.com/sarrost/gentoo-kernel/master/configs/msi/latest.txt)
 
 # Prompt user to select kernel version.
 # TODO register proper choice
 while [ -z "$valid_kernel" ]; do
-	printf "${header}Do you wish to change the kernel version from ${light_blue}${KERNEL_VER}${clear}?\\n${default_no}"
+	printf "${header}Do you wish to change the kernel version from ${emphasis}${KERNEL_VER}${clear}?\\n${default_no}"
 	read choice
 	case "$choice" in
 		*) valid_kernel='true';;
-		@("$yes_pattern")) printf "${header}Please enter the kernel version you would like to use, for example, ${light_blue}${KERNEL_VER}${clear}.\\n${warning}The version number will not be checked for validity, so please ensure you have entered it correctly.\\n${light_blue}[KERNEL]${prompt}"
+		@("$yes_pattern")) printf "${header}Please enter the kernel version you would like to use, for example, ${emphasis}${KERNEL_VER}${clear}.\\n${warning}The version number will not be checked for validity, so please ensure you have entered it correctly.\\n${prompt_style}[KERNEL]${prompt}"
 			read chosen_kernel_version
-			printf "${header}You have chosen ${light_blue}${chosen_kernel_version}${clear} as your kernel version, is this correct?\\n${default_yes}"
+			printf "${header}You have chosen ${emphasis}${chosen_kernel_version}${clear} as your kernel version, is this correct?\\n${default_yes}"
 			read confirmation
 			case "$confirmation" in
 				@("$no_pattern")) printf "${header}You have cancelled the selection.\\n" ;;
 				*) valid_kernel='true'
-					KERNEL_VER="$chosen_kernel_version" ;;
+					export KERNEL_VER="$chosen_kernel_version" ;;
 			esac
 	esac
 done
@@ -248,9 +251,9 @@ done
 #-----------------------------------------------------------
 #	LIVEUSB
 #-----------------------------------------------------------
-printf "${header}Formatting storage device and creating partitions.\\n"
+printf "${header}Formatting storage device and creating partitions. This will take some time as the strorage medium is being overwritten with random data for a secure-ish wipe.\\n"
 # Erase disk
-dd if=/dev/urandom of="$device" bs=1M 
+dd if=/dev/urandom of="$device" bs=1M > /dev/null 2>&1
 # Create new partitions
 parted --align optimal "$device" --script "\
 mklabel gpt \
@@ -269,15 +272,15 @@ set 2 boot on \
 "
 
 printf "${header}Formatting root filesystem.\\n"
-mkfs.ext4 -q "$RICE_ROOTFS_PART"
+mkfs.ext4 -q "$rootfs_partition"
 
 printf "${header}Activate swap partition."
-mkswap "$RICE_SWAP_PART"
-swapon "$RICE_SWAP_PART"
+mkswap "$swap_partition"
+swapon "$swap_partition"
 
 printf "${header}Mounting root filesystem.\\n"
-mount "$RICE_ROOTFS_PART" "$RICE_MOUNT_POINT"
-cd "$RICE_MOUNT_POINT"
+mount "$rootfs_partition" "$mount_point"
+cd "$mount_point"
 
 # TODO??? hwclock --localtime
 # I'm not sure how to sync system time to hwclock.
@@ -292,42 +295,42 @@ tar xpf stage3.tar.xz --xattrs-include='*.*' --numeric-owner
 
 printf "${header}Modifying default make.conf.\\n"
 # Update optimization flags for package compilation.
-sed -i "s/COMMON_FLAGS=\".\+\"/COMMON_FLAGS=\"-march=native -O2 -pipe\"/g" "$RICE_MOUNT_POINT"/etc/portage/make.conf
+sed -i "s/COMMON_FLAGS=\".\+\"/COMMON_FLAGS=\"-march=native -O2 -pipe\"/g" "$mount_point"/etc/portage/make.conf
 # Update amount of jobs to use when emerging packages.
-printf "\\nMAKEOPTS=\"-j${threads}\"" >> "$RICE_MOUNT_POINT"/etc/portage/make.conf
+printf "\\nMAKEOPTS=\"-j${threads}\"" >> "$mount_point"/etc/portage/make.conf
 
 printf "${header}Select mirrors to use.\\n"
 if [ -z "$custom_mirrors" ]; then
-	printf "\\nGENTOO_MIRRORS=\"ftp://ftp.free.fr/mirrors/ftp.gentoo.org/ http://ftp.free.fr/mirrors/ftp.gentoo.org/ http://gentoo.modulix.net/gentoo/ http://gentoo.mirrors.ovh.net/gentoo-distfiles/ https://mirrors.soeasyto.com/distfiles.gentoo.org/ http://mirrors.soeasyto.com/distfiles.gentoo.org/ ftp://mirrors.soeasyto.com/distfiles.gentoo.org/\"\\n" >> "$RICE_MOUNT_POINT"/etc/portage/make.conf
+	printf "\\nGENTOO_MIRRORS=\"ftp://ftp.free.fr/mirrors/ftp.gentoo.org/ http://ftp.free.fr/mirrors/ftp.gentoo.org/ http://gentoo.modulix.net/gentoo/ http://gentoo.mirrors.ovh.net/gentoo-distfiles/ https://mirrors.soeasyto.com/distfiles.gentoo.org/ http://mirrors.soeasyto.com/distfiles.gentoo.org/ ftp://mirrors.soeasyto.com/distfiles.gentoo.org/\"\\n" >> "$mount_point"/etc/portage/make.conf
 else
-	printf "\\n$mirrors\\n" >> "$RICE_MOUNT_POINT"/etc/portage/make.conf
+	printf "\\n$mirrors\\n" >> "$mount_point"/etc/portage/make.conf
 fi
 
 printf "${header}Configuring ebuild repository.\\n"
-mkdir --parents "$RICE_MOUNT_POINT"/etc/portage/repos.conf
-cp "$RICE_MOUNT_POINT"/usr/share/portage/config/repos.conf "$RICE_MOUNT_POINT"/etc/portage/repos.conf/gentoo.conf
+mkdir --parents "$mount_point"/etc/portage/repos.conf
+cp "$mount_point"/usr/share/portage/config/repos.conf "$mount_point"/etc/portage/repos.conf/gentoo.conf
 # TODO custom gentoo repo
 
 printf "${header}Copying DNS info.\\n"
-cp --dereference /etc/resolv.conf "$RICE_MOUNT_POINT"/etc/
+cp --dereference /etc/resolv.conf "$mount_point"/etc/
 
 printf "${header}Mounting the necessary filesystems.\\n"
-mount --types proc /proc "$RICE_MOUNT_POINT"/proc
-mount --rbind /sys "$RICE_MOUNT_POINT"/sys
-mount --make-rslave "$RICE_MOUNT_POINT"/sys
-mount --rbind /dev "$RICE_MOUNT_POINT"/dev
-mount --make-rslave "$RICE_MOUNT_POINT"/dev 
+mount --types proc /proc "$mount_point"/proc
+mount --rbind /sys "$mount_point"/sys
+mount --make-rslave "$mount_point"/sys
+mount --rbind /dev "$mount_point"/dev
+mount --make-rslave "$mount_point"/dev 
 
 #-----------------------------------------------------------
 #	CHROOT
 #-----------------------------------------------------------
-# Chroot in.
+printf "${header}Changing root to ${emphasis}${mount_point}${clear}.\\n"
 # NOTE: comment out this line when editing to restore syntax
 #       highlighting if broken.
-chroot "$RICE_MOUNT_POINT" /bin/bash << "EOT"
+chroot "$mount_point" /bin/bash << "EOT"
 
 printf "${header}Installing ebuild repo snapshot from web.\\n"
-emerge --sync --quiet
+emerge --sync --quiet > /dev/null 2>&1
 printf "${header}Updating package manager.\\n"
 emerge --oneshot --quiet sys-apps/portage
 printf "${header}Installing git.\\n"
@@ -336,9 +339,9 @@ printf "${header}Installing dosfstools.\\n" # dosfstools is needed for vfat.
 emerge --quiet dosfstools
 
 # Properly format boot partition.
-mkfs.vfat -q -F 32 "$RICE_BOOT_PART"
+mkfs.vfat -q -F 32 "$boot_partition"
 # Mount boot partition
-mount "$RICE_BOOT_PART" /boot	
+mount "$boot_partition" /boot	
 
 # Fetch dotfiles and scripts
 cd /root
@@ -362,7 +365,7 @@ emerge --quiet vim
 emerge --verbose --update --deep --newuse --ask --quiet @world
 
 # Set timezone.
-echo "$RICE_TIMEZONE" > /etc/timezone
+echo "$timezone" > /etc/timezone
 emerge --config sys-libs/timezone-data
 
 # Set locale
@@ -401,9 +404,9 @@ printf "${header}Emerging linux-firmware.\\n"
 emerge --quiet sys-kernel/linux-firmware
 
 printf "${header}Configuring fstab.\\n"
-printf "${RICE_BOOT_PART}	/boot	vfat	defaults,noatime	0	2
-${RICE_SWAP_PART}	none	swap	sw	0	0
-${RICE_ROOTFS_PART}	/	ext4	noatime	0	1" >> /etc/fstab
+printf "${boot_partition}	/boot	vfat	defaults,noatime	0	2
+${swap_partition}	none	swap	sw	0	0
+${rootfs_partition}	/	ext4	noatime	0	1" >> /etc/fstab
 
 printf "${header}Setting hostname.\\n"
 printf "hostname=\"${HOSTNAME}\"\\n" > /etc/conf.d/hostname
@@ -430,7 +433,7 @@ emerge --verbose --quiet sys-boot/grub:2
 #-----------------------------------------------------------
 #                         STAGE 1.9
 #-----------------------------------------------------------
-[ -z "$STAGE_1_9" ] && exit
+[ -z "$stage_1_9" ] && exit
 
 printf "${header}Running grub-install command.\\n"
 # Run grub-install command for UEFI.
@@ -448,15 +451,15 @@ grub-mkconfig -o /boot/grub/grub.cfg
 #-----------------------------------------------------------
 #                         STAGE 1.99
 #-----------------------------------------------------------
-[ -z "$STAGE_1_99" ] && exit
+[ -z "$stage_1_99" ] && exit
 # TODO stop here and ask to confirm that all is well
 
 # Reboot and remove liveusb
 printf "${header}Leaving chroot environment.\\n"
 exit
 printf "${header}Unmounting storage devices.\\n"
-umount -l "$RICE_MOUNT_POINT"/dev{/shm,/pts,}
-umount -R "$RICE_MOUNT_POINT"
+umount -l "$mount_point"/dev{/shm,/pts,}
+umount -R "$mount_point"
 
 printf "${header}STAGE 1 installation complete!.. Hopefully! You will have to shutdown the machine, then eject the liveusb, then starup the machine again. Run 'halt' to shutdown the machine.\\n"
 
