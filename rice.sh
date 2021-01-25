@@ -205,7 +205,15 @@ while [ -z "$valid_mirrors" ]; do
 	printf
 done
 
-# Prompt user to select kernel version
+
+# TODO Prompt user to select kernel dir.
+KERNEL_DIR=msi
+
+# Fetch kernel version.
+# TODO proper link variable
+KERNEL_VER=$(curl https://raw.githubusercontent.com/sarrost/gentoo-kernel/master/configs/msi/latest.txt)
+
+# Prompt user to select kernel version.
 while [ -z "$valid_kernel" ]; do
 	printf "Do you wish to change the kernel version from $KERNEL_VER?\\n[BLANK] No / [Y]es >"
 	read choice
@@ -223,8 +231,6 @@ while [ -z "$valid_kernel" ]; do
 	esac
 done
 
-# TODO Prompt user to select kernel dir
-KERNEL_DIR=msi
 
 #-----------------------------------------------------------
 #	LIVEUSB
