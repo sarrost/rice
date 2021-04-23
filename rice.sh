@@ -292,8 +292,9 @@ done
 #	LIVEUSB
 #-----------------------------------------------------------
 printf "%sFormatting storage device and creating partitions. This will take some time as the storage medium is being overwritten with random data for a secure-ish wipe.\\n" "${header}"
-# Erase disk
-dd if=/dev/urandom of="$device" bs=1M > /dev/null 2>&1
+# TODO: re-enable when stable 1.9 is reached.
+## Erase disk
+#dd if=/dev/urandom of="$device" bs=1M > /dev/null 2>&1
 # Create new partitions
 parted --align optimal "$device" --script "\
 mklabel gpt \
