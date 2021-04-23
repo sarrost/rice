@@ -41,20 +41,25 @@ export err_dotfiles="${error}Cannot locate dotfiles dir, or it's there but the s
 export err_root="${error}Cannot locate ${emphasis}/root${clear} dir."
 
 
-# TODO args for stages
-if [ -z "$1" ]; then
-	printf "%sSpecify a stage.\\n" "$error"
-else
-	case "$1" in
-		1) export stage_1='true';;
-		1_9) export stage_1_9='true';;
-		1_99) export stage_1_99='true';;
-		2) export stage_2='true';;
-		2_9) export stage_2_9='true';;
-		3) export stage_3='true';;
-	esac
-fi
-
+## TODO args for stages
+#if [ -z "$1" ]; then
+#	printf "%sSpecify a stage.\\n" "$error"
+#else
+#	case "$1" in
+#		1) export stage_1='true';;
+#		1_9) export stage_1_9='true';;
+#		1_99) export stage_1_99='true';;
+#		2) export stage_2='true';;
+#		2_9) export stage_2_9='true';;
+#		3) export stage_3='true';;
+#	esac
+#fi
+stage_1='true'
+stage_1_9='true'
+stage_1_99='true'
+stage_2='true'
+stage_2_9='true'
+stage_3='true'
 
 #-----------------------------------------------------------
 #                         STAGE 1
@@ -520,8 +525,8 @@ fi
 #
 #	printf "%sSTAGE 1 installation complete!.. Hopefully! You will have to shutdown the machine, then eject the liveusb, then starup the machine again. Run 'halt' to shutdown the machine.\\n" "${header}"
 #fi
-#EOT
-#fi
+EOT
+fi
 ##-----------------------------------------------------------
 ##                         STAGE 2
 ##-----------------------------------------------------------
